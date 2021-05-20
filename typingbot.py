@@ -11,19 +11,25 @@ from pathlib import Path
 from selenium import webdriver
 
 pattern = re.compile("([\d]+)/([\d]+)")
+filePattern = re.compile("Username:[ ]?(.+)\nPassword:[ ]?(.+)")
 
 path = Path(os.path.dirname(os.path.realpath(__file__)))
 chromePath = os.path.join(path, "chromedriver.exe")
 print("Starting up web browser...")
 browser = webdriver.Chrome(executable_path=chromePath)
 
+with open("credentials.txt", "r") as file:
+    m = re.match(filePattern, file.read())
+    username = m.group(1)
+    password = m.group(2)
+
 # Log into typing.com
 browser.get("https://www.typing.com/student/login")
 time.sleep(2)
-pyautogui.typewrite("pmhs_account_18")
+pyautogui.typewrite(username)
 pyautogui.press("enter")
 time.sleep(2)
-pyautogui.typewrite("keyboarding22")
+pyautogui.typewrite(password)
 pyautogui.press("enter")
 
 # Allow the user to navigate to the problem section
