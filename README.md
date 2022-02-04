@@ -21,7 +21,7 @@ py typingbot.py
 # Using the Program
 When run, the program will launch a new Chrome window.  It will then use the provided credentials to access your typing.com account.  Once signed into your account, control is returned to the user.  The terminal will display a message saying, "Navigate to the section and hit enter..."  Follow these directions and make your way to the lesson you want automated.  Once there, press enter in the terminal and quickly return focus to the browser.  The program should automatically and seemlessly complete the provided module.  
 
-IMPORTANT - Once starts automating the lesson, you cannot interact with your machine.  Doing so will cause the keystrokes to interact with other programs.
+IMPORTANT - Once the bot starts automating the lesson, you cannot interact with your machine.  Doing so will cause the keystrokes to interact with other programs.
 
 Once the lesson is completed, the terminal will prompt the user with "Again?"  Any answer but an "N" will cause the program to prepare for another lesson.  If you desire to complete another lesson, first navigate to said lesson, then hit enter in the terminal.
 
