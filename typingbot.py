@@ -6,10 +6,14 @@ typing.com modules
 """
 
 
-import time, pyautogui, os, re
+import time, os, re
 from pathlib import Path
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
+
+        
 pattern = re.compile("([\d]+)/([\d]+)")
 filePattern = re.compile("Username:[ ]?(.+)\nPassword:[ ]?(.+)")
 
@@ -18,6 +22,8 @@ chromePath = os.path.join(path, "chromedriver.exe")
 print("Starting up web browser...")
 browser = webdriver.Chrome(executable_path=chromePath)
 
+actions = ActionChains(browser)
+
 with open("credentials.txt", "r") as file:
     m = re.match(filePattern, file.read())
     username = m.group(1)
@@ -25,34 +31,55 @@ with open("credentials.txt", "r") as file:
 
 # Log into typing.com
 browser.get("https://www.typing.com/student/login")
-time.sleep(2)
-pyautogui.typewrite(username)
-pyautogui.press("enter")
-time.sleep(2)
-pyautogui.typewrite(password)
-pyautogui.press("enter")
+
+# Enter username
+nameField = browser.find_element_by_id("form-ele-username")
+nameField.send_keys(username)
+actions.send_keys(Keys.ENTER)
+actions.perform()
+
+# Inject a brief waiting period
+time.sleep(.5)
+
+# Enter password
+passField = browser.find_element_by_id("form-ele-password")
+passField.send_keys(password)
+actions.send_keys(Keys.ENTER)
+actions.perform()
 
 # Allow the user to navigate to the problem section
 input("Navigate to the section and hit enter...")
-time.sleep(2)
-pyautogui.press("enter")
+actions.send_keys(Keys.ENTER)
+actions.perform()
+
+def sendWithDelay(letters, wpm=0):
+    if wpm:
+        kpm = wpm * 5
+        kps = kpm / 60
+        for l in letters:
+            actions.send_keys(l)
+            actions.perform()
+            time.sleep(kps)
+    else:
+        actions.send_keys(letters)
+        actions.perform()
 
 while True:
 
-    time.sleep(1)
-
     while True:
 
-        count = 0
+        # While there is no continue button
         while len(browser.find_elements_by_class_name("js-continue-button")) == 0:
+
+            # Get the letters
             letters = browser.find_elements_by_class_name("screenBasic-letter")
-            finishedLetters = browser.find_elements_by_class_name("is-right")
-            letters = [l for l in letters if not l in finishedLetters]
-            letters = "".join([l.text for l in letters])
+            finishedLetters = set(browser.find_elements_by_class_name("is-right"))
+            letters = "".join([l.text for l in letters if not l in finishedLetters])
             letters.replace("\n", " ").split("   ")
             letters = letters.replace("⏎", "\n")
-            pyautogui.typewrite(letters, interval=.05)
-            count += 1
+
+            # Type the letters
+            sendWithDelay(letters, wpm=70)
 
         progress = browser.find_elements_by_class_name("split-cell")
         if len(progress) >= 9:
@@ -65,8 +92,9 @@ while True:
         # Handle cases with pop ups
         continueButton = browser.find_elements_by_class_name("js-continue-button")
         if len(continueButton) > 0:
-            pyautogui.press("enter")
-            time.sleep(1)
+            actions.send_keys(Keys.ENTER)
+            actions.perform()
+            time.sleep(.5)
 
     if input("Again? ").lower() == "n":
         break
